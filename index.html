@@ -205,7 +205,7 @@
             const compressed = pako.deflate(data, { level: 9, to: 'string' });
             const result = btoa(compressed).replace(/\+/g, '-').replace(/\//g, '_');
 
-            const url = `https://ape-light-crayfish.ngrok-free.app/img/pako:${result}?width=4000`;
+            const url = `https://mermaid.ink/img/pako:${result}?width=4000`;
 
             window.addEventListener('beforeunload', () => {
                 document.getElementById('spinner').style.display = 'flex';
