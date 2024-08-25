@@ -206,7 +206,7 @@
             const result = btoa(compressed).replace(/\+/g, '-').replace(/\//g, '_');
 
             let url;
-            if (isJourneyOrGitGraph(mermaidCode)) {
+            if (isGitGraph(mermaidCode)) {
                 url = `https://mermaid.ink/img/pako:${result}?width=1000&height=1000`;
             } else {
                 url = `https://mermaid.ink/img/pako:${result}?width=4000`;
@@ -219,14 +219,14 @@
             window.location.href = url;
             }
 
-         function isJourneyOrGitGraph(code) {
+         function isGitGraph(code) {
             const contentWithoutFrontmatter = code.replace(/^---\n[\s\S]*?\n---\n/, '');    
             const lines = contentWithoutFrontmatter.replace(/%%.*$/gm, '').split('\n');
     
             for (let line of lines) {
                 line = line.trim();
                 if (line && !line.startsWith('---') && !line.startsWith('classDef') && !line.startsWith('class') && !line.startsWith('style')) {
-                    return line.startsWith('journey') || line.startsWith('gitGraph');
+                    return line.startsWith('gitGraph');
             }
           }
             return false;
