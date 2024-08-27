@@ -2,77 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flowchart Generator</title>
+    <link rel="stylesheet" href="https://unpkg.com/magicui@latest/dist/magicui.min.css">
     <script src="https://unpkg.com/pako@1.0.10/dist/pako_deflate.min.js"></script>
+    <script src="https://unpkg.com/magicui@latest/dist/magicui.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0;
             overflow: hidden;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s;
         }
         .container {
             background: var(--container-bg-color);
             border-radius: 12px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             padding: 30px;
             width: 400px;
             text-align: center;
-            transition: background-color 0.3s;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px; 
-        }
-        textarea {
-            width: calc(100% - 20px);
-            height: 100px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            font-size: 14px;
-            margin-bottom: 20px;
-            resize: none;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        button {
-            background-color: #007aff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0051a8;
-        }
-        #result {
-            margin-top: 20px;
-            font-size: 16px;
-        }
-        a {
-            color: #007aff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+            position: relative;
+            z-index: 1;
         }
         #logo {
             width: 200px;
-            height: 100px; 
-            margin-bottom: 10px; 
+            height: 100px;
+            margin-bottom: 20px;
             border-radius: 25px;
         }
         .theme-toggle {
@@ -91,7 +53,7 @@
             height: 34px;
         }
         .theme-toggle label input:checked + .slider {
-            background-color: #007aff;
+            background-color: #f44336;
         }
         .theme-toggle label input:checked + .slider:before {
             transform: translateX(26px);
@@ -118,6 +80,54 @@
             transition: 0.4s;
             border-radius: 50%;
         }
+        .magic-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        .magic-button:hover {
+            background-color: #d32f2f;
+            transform: scale(1.05);
+        }
+        .magic-button:active {
+            transform: scale(0.95);
+        }
+        textarea {
+            width: calc(100% - 20px);
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            resize: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: var(--textarea-bg);
+            color: var(--text-color);
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+        }
+        textarea::-webkit-scrollbar {
+            width: 12px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: var(--scrollbar-thumb-hover);
+        }
         #spinner {
             display: none;
             position: fixed;
@@ -136,7 +146,7 @@
         }
         #spinner .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #007aff;
+            border-top: 4px solid #f44336;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -150,7 +160,12 @@
         :root {
             --bg-color: #f5f5f7;
             --text-color: #333;
-            --container-bg-color: white;
+            --container-bg-color: #fff;
+            --textarea-bg: #fff;
+            --border-color: #ddd;
+            --scrollbar-thumb: #888;
+            --scrollbar-thumb-hover: #555;
+            --scrollbar-track: #f1f1f1;
             --spinner-bg-color: rgba(255, 255, 255, 0.8);
             --spinner-text-color: #333;
         }
@@ -158,6 +173,11 @@
             --bg-color: #1e1e1e;
             --text-color: #f5f5f7;
             --container-bg-color: #2e2e2e;
+            --textarea-bg: #333;
+            --border-color: #444;
+            --scrollbar-thumb: #666;
+            --scrollbar-thumb-hover: #333;
+            --scrollbar-track: #222;
             --spinner-bg-color: rgba(0, 0, 0, 0.8);
             --spinner-text-color: #f5f5f7;
         }
@@ -166,16 +186,16 @@
 <body>
     <div class="container">
         <img id="logo" src="logo.jpeg" alt="Logo">
-        <h1>Flowchart Generator</h1>
+        <h1 class="magic-heading">Flowchart Generator</h1>
         <div class="theme-toggle">
-            <label for="themeSwitch">
+            <label for="themeSwitch" class="magic-switch">
                 <input type="checkbox" id="themeSwitch" onclick="toggleTheme()">
                 <span class="slider"></span>
             </label>
         </div>
-        <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..."></textarea><br>
-        <button id="generateLink" onclick="generateDiagram()">Generate Diagram</button>
-        <p id="result"></p>
+        <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..." class="magic-textarea"></textarea>
+        <button id="generateLink" class="magic-button" onclick="generateDiagram()">Generate Diagram</button>
+        <p id="result" class="magic-text"></p>
     </div>
     <div id="spinner">
         <div class="loader"></div>
@@ -213,25 +233,25 @@
             }
 
             window.addEventListener('beforeunload', () => {
-            document.getElementById('spinner').style.display = 'flex';
+                document.getElementById('spinner').style.display = 'flex';
             });
 
             window.location.href = url;
-            }
+        }
 
-         function isGitGraph(code) {
-            const contentWithoutFrontmatter = code.replace(/^---\n[\s\S]*?\n---\n/, '');    
+        function isGitGraph(code) {
+            const contentWithoutFrontmatter = code.replace(/^---\n[\s\S]*?\n---\n/, '');
             const lines = contentWithoutFrontmatter.replace(/%%.*$/gm, '').split('\n');
-    
+
             for (let line of lines) {
                 line = line.trim();
                 if (line && !line.startsWith('---') && !line.startsWith('classDef') && !line.startsWith('class') && !line.startsWith('style')) {
                     return line.startsWith('gitGraph');
+                }
             }
-          }
             return false;
-          }
-        
+        }
+
         window.addEventListener('load', () => {
             document.getElementById('spinner').style.display = 'none';
         });
