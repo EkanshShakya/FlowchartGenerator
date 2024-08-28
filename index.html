@@ -78,6 +78,12 @@
             transition: 0.4s;
             border-radius: 50%;
         }
+        .action-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
         .magic-button {
             background-color: #f44336;
             color: white;
@@ -88,7 +94,7 @@
             cursor: pointer;
             transition: background-color 0.3s, transform 0.2s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-top: 20px;
+            margin-right: 10px;
         }
         .magic-button:hover {
             background-color: #d32f2f;
@@ -98,33 +104,21 @@
             transform: scale(0.95);
         }
         .dropdown {
-            position: relative;
-            display: inline-block;
+            margin-left: 10px;
         }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            bottom: 50px; 
-            right: -60px; 
+        .dropdown select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
             background-color: var(--container-bg-color);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            z-index: 1;
-            min-width: 160px;
-            text-align: left;
-        }
-        .dropdown-content a {
             color: var(--text-color);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;                                                
         }
-        .dropdown-content a:hover {
-            background-color: var(--hover-bg-color);
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
+        .dropdown select:focus {
+            outline: none;
+            border-color: #f44336;
         }
         textarea {
             width: calc(100% - 20px);
@@ -209,14 +203,6 @@
             --spinner-bg-color: rgba(0, 0, 0, 0.8);
             --spinner-text-color: #f5f5f7;
             --hover-bg-color-dark: #444;
-            --dropdown-box-shadow-dark: 0 4px 8px rgba(0, 0, 0, 0.8); 
-        }
-        [data-theme="dark"] .dropdown-content {
-            background-color: var(--container-bg-color);
-            box-shadow: var(--dropdown-box-shadow-dark);
-        }
-        [data-theme="dark"] .dropdown-content a:hover {
-            background-color: var(--hover-bg-color-dark);
         }
     </style>
 </head>
@@ -231,12 +217,14 @@
             </label>
         </div>
         <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..."></textarea>
-        <div class="dropdown">
-            <button class="magic-button">Generate Diagram</button>
-            <div class="dropdown-content">
-                <a href="#" onclick="generateDiagram('img')">Generate JPEG</a>
-                <a href="#" onclick="generateDiagram('svg')">Generate SVG</a>
-                <a href="#" onclick="generateDiagram('pdf')">Generate PDF</a>
+        <div class="action-container">
+            <button class="magic-button" onclick="generateDiagram()">Generate Diagram</button>
+            <div class="dropdown">
+                <select id="formatSelect">
+                    <option value="img">JPEG</option>
+                    <option value="svg">SVG</option>
+                    <option value="pdf">PDF</option>
+                </select>
             </div>
         </div>
         <p id="result"></p>
@@ -251,7 +239,11 @@
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.getElementById('themeSwitch').checked = savedTheme === 'dark';
-            document.getElementById('spinner').style.display = 'none';
+            const diagramGenerated = localStorage.getItem('diagramGenerated');
+            if (diagramGenerated === 'true') {
+                document.getElementById('spinner').style.display = 'none';
+                localStorage.setItem('diagramGenerated', 'false');
+            }
         });
 
         function toggleTheme() {
@@ -261,9 +253,10 @@
             localStorage.setItem('theme', newTheme);
         }
 
-        function generateDiagram(format) {
+        function generateDiagram() {
             document.getElementById('spinner').style.display = 'flex';
             const mermaidCode = document.getElementById('mermaidCode').value;
+            const format = document.getElementById('formatSelect').value;
             const json = JSON.stringify({ code: mermaidCode, mermaid: { theme: 'default' }, autoSync: true, updateDiagram: true });
             const data = textEncode(json);
             const compressed = pako.deflate(data, { level: 9, to: 'string' });
@@ -280,10 +273,7 @@
                 url = `https://mermaid.ink/pdf/pako:${result}?fit`;
             }
 
-            window.addEventListener('beforeunload', () => {
-                document.getElementById('spinner').style.display = 'flex';
-            });
-
+            localStorage.setItem('diagramGenerated', 'true');
             window.location.href = url;
         }
 
