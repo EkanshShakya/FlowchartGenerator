@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flowchart Generator</title>
-    <link rel="stylesheet" href="https://unpkg.com/magicui@latest/dist/magicui.min.css">
     <script src="https://unpkg.com/pako@1.0.10/dist/pako_deflate.min.js"></script>
-    <script src="https://unpkg.com/magicui@latest/dist/magicui.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -225,14 +223,14 @@
 <body>
     <div class="container">
         <img id="logo" src="logo.jpeg" alt="Logo">
-        <h1 class="magic-heading">Flowchart Generator</h1>
+        <h1>Flowchart Generator</h1>
         <div class="theme-toggle">
-            <label for="themeSwitch" class="magic-switch">
+            <label for="themeSwitch">
                 <input type="checkbox" id="themeSwitch" onclick="toggleTheme()">
                 <span class="slider"></span>
             </label>
         </div>
-        <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..." class="magic-textarea"></textarea>
+        <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..."></textarea>
         <div class="dropdown">
             <button class="magic-button">Generate Diagram</button>
             <div class="dropdown-content">
@@ -241,7 +239,7 @@
                 <a href="#" onclick="generateDiagram('pdf')">Generate PDF</a>
             </div>
         </div>
-        <p id="result" class="magic-text"></p>
+        <p id="result"></p>
     </div>
     <div id="spinner">
         <div class="loader"></div>
