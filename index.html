@@ -99,6 +99,35 @@
         .magic-button:active {
             transform: scale(0.95);
         }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 50px; 
+            right: -60px; 
+            background-color: var(--container-bg-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1;
+            min-width: 160px;
+            text-align: left;
+        }
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 8px;
+        }
+        .dropdown-content a:hover {
+            background-color: var(--hover-bg-color);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
         textarea {
             width: calc(100% - 20px);
             height: 100px;
@@ -168,6 +197,7 @@
             --scrollbar-track: #f1f1f1;
             --spinner-bg-color: rgba(255, 255, 255, 0.8);
             --spinner-text-color: #333;
+            --hover-bg-color: #ddd;
         }
         [data-theme="dark"] {
             --bg-color: #1e1e1e;
@@ -180,6 +210,15 @@
             --scrollbar-track: #222;
             --spinner-bg-color: rgba(0, 0, 0, 0.8);
             --spinner-text-color: #f5f5f7;
+            --hover-bg-color-dark: #444;
+            --dropdown-box-shadow-dark: 0 4px 8px rgba(0, 0, 0, 0.8); 
+        }
+        [data-theme="dark"] .dropdown-content {
+            background-color: var(--container-bg-color);
+            box-shadow: var(--dropdown-box-shadow-dark);
+        }
+        [data-theme="dark"] .dropdown-content a:hover {
+            background-color: var(--hover-bg-color-dark);
         }
     </style>
 </head>
@@ -194,7 +233,14 @@
             </label>
         </div>
         <textarea id="mermaidCode" placeholder="Paste your Mermaid code here..." class="magic-textarea"></textarea>
-        <button id="generateLink" class="magic-button" onclick="generateDiagram()">Generate Diagram</button>
+        <div class="dropdown">
+            <button class="magic-button">Generate Diagram</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="generateDiagram('img')">Generate JPEG</a>
+                <a href="#" onclick="generateDiagram('svg')">Generate SVG</a>
+                <a href="#" onclick="generateDiagram('pdf')">Generate PDF</a>
+            </div>
+        </div>
         <p id="result" class="magic-text"></p>
     </div>
     <div id="spinner">
@@ -217,7 +263,7 @@
             localStorage.setItem('theme', newTheme);
         }
 
-        function generateDiagram() {
+        function generateDiagram(format) {
             document.getElementById('spinner').style.display = 'flex';
             const mermaidCode = document.getElementById('mermaidCode').value;
             const json = JSON.stringify({ code: mermaidCode, mermaid: { theme: 'default' }, autoSync: true, updateDiagram: true });
@@ -227,9 +273,13 @@
 
             let url;
             if (isGitGraph(mermaidCode)) {
-                url = `https://mermaid.ink/img/pako:${result}?width=4000&height=4000`;
+                url = `https://mermaid.ink/${format}/pako:${result}?width=4000&height=4000`;
             } else {
-                url = `https://mermaid.ink/img/pako:${result}?width=4000`;
+                url = `https://mermaid.ink/${format}/pako:${result}?width=4000`;
+            }
+
+            if (format === 'pdf') {
+                url = `https://mermaid.ink/pdf/pako:${result}?fit`;
             }
 
             window.addEventListener('beforeunload', () => {
